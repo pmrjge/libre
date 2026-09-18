@@ -25,13 +25,13 @@ endpoints:
           # Multi-Model Deliberation Ensembles
           - "openrouter/fusion"
           - "openrouter/fusion-flash"
-          - "deepseek/deepseek-v4.1"
-          - "z-ai/glm-5.3"
         fetch: true
       titleConvo: true
-      titleModel: "openrouter/fusion-flash"
+      titleModel: "openrouter/fusion"
+      dropParams:
+        - "stop"
       summarize: true
-      summaryModel: "openrouter/fusion-flash"
+      summaryModel: "openrouter/fusion"
       modelDisplayLabel: "OpenRouter"
 
 mcpSettings:
@@ -108,3 +108,39 @@ mcpServers:
     args:
       - "-y"
       - "@modelcontextprotocol/server-memory"
+
+  # 1. PUPPETEER SERVER
+  # Used by: wireframer-skill, responsive-craft, brand-to-design-md-skill
+  # Capabilities: Headless browser automation, DOM inspection, taking screenshots for Vision
+  puppeteer:
+    command: "npx"
+    args: 
+      - "-y"
+      - "@modelcontextprotocol/server-puppeteer"
+      
+  # 2. FETCH SERVER
+  # Used by: google-fonts-skill
+  # Capabilities: Making REST API calls to the Google Fonts Developer API
+  fetch:
+    command: "npx"
+    args: 
+      - "-y"
+      - "@modelcontextprotocol/server-fetch"
+
+  # 3. COLOR METRICS SERVER
+  # Used by: color-expert-skill
+  # Capabilities: WCAG contrast calculation, OKLCH conversion, palette generation
+  color-server:
+    command: "npx"
+    args:
+      - "-y"
+      - "color-scheme-mcp" # Open-source community color MCP server
+
+  # 5. BASH / COMMAND EXECUTION SERVER
+  # Used by: ux-flow-designer, motion-design-skill
+  # Capabilities: Running local linters, executing Mermaid CLI syntax validation
+  bash-runner:
+    command: "npx"
+    args:
+      - "-y"
+      - "@snickell/mcp-server-bash"
