@@ -1,0 +1,110 @@
+version: "1.1.5"
+
+cache: true
+
+fileConfig:
+  serverFileSizeLimit: 200
+  avatarSizeLimit: 5
+
+# Automated OCR Pipeline for images and unsearchable PDFs
+ocr:
+  strategy: "document_parser"
+  supportedMimeTypes:
+    - "image/png"
+    - "image/jpeg"
+    - "image/webp"
+    - "application/pdf"
+
+endpoints:
+  custom:
+    - name: "OpenRouter"
+      apiKey: "${OPENROUTER_KEY}"
+      baseURL: "https://openrouter.ai/api/v1"
+      models:
+        default:
+          # Multi-Model Deliberation Ensembles
+          - "openrouter/fusion"
+          - "openrouter/fusion-flash"
+          - "deepseek/deepseek-v4.1"
+          - "z-ai/glm-5.3"
+        fetch: true
+      titleConvo: true
+      titleModel: "openrouter/fusion-flash"
+      summarize: true
+      summaryModel: "openrouter/fusion-flash"
+      modelDisplayLabel: "OpenRouter"
+
+mcpSettings:
+  # Only needed if you later add internal/private MCP endpoints.
+  allowedAddresses: []
+
+mcpServers:
+
+  fusion:
+    type: stdio
+    command: uvx
+    args:
+      - openrouter-fusion-agent
+      - --mcp
+    env:
+      OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}"
+    initTimeout: 120000
+    timeout: 120000
+
+  exa:
+    type: streamable-http
+    url: "https://mcp.exa.ai/mcp"
+    requiresOAuth: false
+    headers:
+      Authorization: "Bearer ${EXA_API_KEY}"
+    initTimeout: 30000
+    timeout: 120000
+
+  jina:
+    type: streamable-http
+    url: "https://mcp.jina.ai/v1"
+    requiresOAuth: false
+    headers:
+      Authorization: "Bearer ${JINA_API_KEY}"
+    initTimeout: 30000
+    timeout: 120000
+
+  spider:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - spider-cloud-mcp
+    env:
+      SPIDER_API_KEY: "${SPIDER_API_KEY}"
+    initTimeout: 120000
+    timeout: 120000
+
+  docling:
+    type: stdio
+    command: uvx
+    args:
+      - --from
+      - docling-mcp
+      - docling-mcp-server
+      - --transport
+      - stdio
+    initTimeout: 120000
+    timeout: 120000
+
+  filesystem:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /workspace
+    initTimeout: 120000
+    timeout: 120000
+
+  memory:
+    type: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-memory"
